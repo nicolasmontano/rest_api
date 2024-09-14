@@ -5,6 +5,7 @@ api.py
 The REST Api for the Globoticket events database.
 """
 from pathlib import Path
+from select import select
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -28,6 +29,11 @@ def get_session() -> Session:
     finally:
         session.close()
 
+@app.get("/hello")
+def hello():
+    return "Hello, world!"
+
+
 
 @app.get("/event/{id}", response_model=Event)
 def get_event(id: int, db: Annotated[Session, Depends(get_session)]) -> DBEvent:
@@ -37,11 +43,11 @@ def get_event(id: int, db: Annotated[Session, Depends(get_session)]) -> DBEvent:
         raise HTTPException(status_code=404, detail=f"No product with id {id}")
     return event
 
-
+# get all events
 @app.get("/event/", response_model=list[Event])
-def get_all_events(db: Annotated[Session, Depends(get_session)]) -> list[DBEvent]:
-    return get_all_dbevents(db)
-
+def get_events(db: Annotated[Session, Depends(get_session)]) -> list[DBEvent]:
+    """Retrieve all events."""
+    return db.execute(select(DBEvent)).scalars()
 
 # This should come AFTER all other endpoints
 app.mount("/", StaticFiles(directory=PROJECT_ROOT / "static", html=True))

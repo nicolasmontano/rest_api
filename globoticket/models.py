@@ -1,6 +1,8 @@
 import decimal
 from datetime import date
+from select import select
 
+from requests import session, Session
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -11,6 +13,7 @@ from sqlalchemy.orm import (
     relationship,
 )
 
+from globoticket.database import SessionLocal
 from globoticket.frontmatter import get_frontmatter
 
 Base: DeclarativeBase = declarative_base()
@@ -40,3 +43,4 @@ class DBEvent(Base):
         for k, v in frontmatter.items():
             if not hasattr(self, k):
                 setattr(self, k, v)
+
